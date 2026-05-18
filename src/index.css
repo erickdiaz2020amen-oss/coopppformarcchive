@@ -1,0 +1,50 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-50: #edfbf2;
+  --color-brand-100: #d4f5df;
+  --color-brand-200: #aeeac3;
+  --color-brand-300: #7ed8a0;
+  --color-brand-400: #4ebd7a;
+  --color-brand-500: #2b9e59;
+  --color-brand-600: #1f7d45;
+  --color-brand-700: #1a6438;
+  --color-brand-800: #174f2d;
+  --color-brand-900: #144126;
+  --color-brand-950: #0b2416;
+
+  --color-primary: var(--color-brand-600);
+  --color-primary-hover: var(--color-brand-700);
+
+  --animate-fade-in-up: fade-in-up 0.5s ease-out;
+
+  @keyframes fade-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+  }
+
+  body {
+    background-color: #f0fdf4; /* Light green tint background to match the premium modern feel */
+    color: var(--foreground);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+}
+
+/* Custom styles for signature canvas if needed */
+.sigCanvas {
+  width: 100%;
+  height: 100%;
+}
