@@ -14,8 +14,8 @@ export default defineConfig({
         target: 'https://lcajcnprlvbnqelamqnj.supabase.co',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/supabase/, ''),
-        configure: (proxy, options) => {
-          proxy.on('proxyReq', (proxyReq, req, res) => {
+        configure: (proxy, _options) => {
+          proxy.on('proxyReq', (proxyReq, _req, _res) => {
             proxyReq.setHeader('apikey', 'sb_secret_DQsWdev6KYsnSdTbEGK1xw_cJOkkgqk');
             proxyReq.setHeader('Authorization', 'Bearer sb_secret_DQsWdev6KYsnSdTbEGK1xw_cJOkkgqk');
             

@@ -4,7 +4,7 @@ import { RouterProvider, createRouter, createRoute, createRootRoute } from '@tan
 import { Buffer } from 'buffer';
 
 // Polyfill Buffer for @react-pdf/renderer
-globalThis.Buffer = Buffer;
+(globalThis as any).Buffer = Buffer;
 
 import './index.css';
 import { App } from './App';
