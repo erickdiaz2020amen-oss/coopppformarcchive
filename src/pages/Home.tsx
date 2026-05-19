@@ -339,13 +339,14 @@ export default function Home() {
             <SignatureCanvas 
               ref={sigCanvas}
               penColor="black"
+              clearOnResize={false}
               canvasProps={{className: 'sigCanvas w-full h-40 bg-transparent cursor-crosshair'}}
             />
             <Button 
               type="button" 
               variant="outline" 
               size="sm" 
-              className="absolute bottom-4 right-4 bg-white opacity-0 group-hover:opacity-100 transition-opacity"
+              className="absolute bottom-4 right-4 bg-white shadow-sm md:opacity-0 md:group-hover:opacity-100 transition-opacity"
               onClick={clearSignature}
             >
               Limpiar Firma
