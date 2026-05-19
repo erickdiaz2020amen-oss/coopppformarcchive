@@ -162,6 +162,19 @@ export default function Home() {
 
       if (error) throw new Error(error.message);
       
+      // WhatsApp notification via CallMeBot
+      try {
+        const phone = '+18096917244';
+        const apikey = '8141876';
+        const message = `*¡Nueva solicitud recibida!* 📝\n\n*Nombre:* ${data.nombres} ${data.apellidos}\n*Cédula:* ${data.cedula}\n*Teléfono:* ${data.telefonos || 'No provisto'}\n*Email:* ${data.email || 'No provisto'}\n*Cargo:* ${data.cargo || 'No provisto'}\n*Salario:* ${data.salario || 'No provisto'}\n*Aporte mensual:* $${data.aporteMensual || 'No provisto'}`;
+        const encodedText = encodeURIComponent(message);
+        const url = `https://api.callmebot.com/whatsapp.php?phone=${phone}&text=${encodedText}&apikey=${apikey}`;
+        
+        fetch(url, { mode: 'no-cors' }).catch((e) => console.error('Error CallMeBot:', e));
+      } catch (e) {
+        console.error('CallMeBot notification failed:', e);
+      }
+      
       setIsSubmitting(false);
       setIsSuccess(true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -332,12 +345,12 @@ export default function Home() {
 
         <div className="mb-8">
           <Label required className="text-base">Firma del Solicitante</Label>
-          <div className="border-2 border-dashed border-gray-300 rounded-lg p-2 bg-gray-50 relative mt-2 group hover:border-brand-400 transition-colors">
+          <div className="border-2 border-dashed border-gray-300 rounded-lg p-2 bg-gray-50 relative mt-2 group hover:border-brand-400 transition-colors h-96 md:h-52">
             <SignatureCanvas 
               ref={sigCanvas}
               penColor="black"
               clearOnResize={false}
-              canvasProps={{className: 'sigCanvas w-full h-40 bg-transparent cursor-crosshair'}}
+              canvasProps={{className: 'sigCanvas w-full h-full bg-transparent cursor-crosshair'}}
             />
             <Button 
               type="button" 
