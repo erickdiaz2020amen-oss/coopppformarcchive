@@ -4,6 +4,14 @@
   "framework": "vite",
   "rewrites": [
     {
+      "source": "/api/supabase/(.*)",
+      "destination": "/api/supabase-proxy?__path=$1"
+    },
+    {
+      "source": "/api/b2/(.*)",
+      "destination": "/api/b2-proxy?__path=$1"
+    },
+    {
       "source": "/((?!api/).*)",
       "destination": "/index.html"
     }

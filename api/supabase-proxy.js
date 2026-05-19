@@ -1,11 +1,5 @@
 // Vercel Serverless Function - Supabase Proxy
-// Catches all requests to /api/supabase/* and forwards them to Supabase
-
-export const config = {
-  api: {
-    bodyParser: true,
-  },
-};
+// All /api/supabase/* requests are rewritten to this function via vercel.json
 
 export default async function handler(req, res) {
   // Handle CORS preflight
@@ -17,14 +11,13 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Reconstruct the path after /api/supabase
-    const pathSegments = req.query.path;
-    const subPath = Array.isArray(pathSegments) ? pathSegments.join('/') : (pathSegments || '');
+    // The original sub-path is passed via rewrite query param
+    const proxyPath = req.query.__path || '';
 
-    // Rebuild query string without the catch-all 'path' param
+    // Rebuild the original query string (excluding our internal __path param)
     const params = new URLSearchParams();
     for (const [key, value] of Object.entries(req.query)) {
-      if (key === 'path') continue;
+      if (key === '__path') continue;
       if (Array.isArray(value)) {
         value.forEach(v => params.append(key, v));
       } else {
@@ -32,13 +25,13 @@ export default async function handler(req, res) {
       }
     }
     const qs = params.toString();
-    const targetUrl = `https://lcajcnprlvbnqelamqnj.supabase.co/${subPath}${qs ? '?' + qs : ''}`;
+    const targetUrl = `https://lcajcnprlvbnqelamqnj.supabase.co/${proxyPath}${qs ? '?' + qs : ''}`;
 
     // Use the service role key from environment variables
     const supabaseKey = process.env.SUPABASE_SERVICE_KEY || process.env.VITE_SUPABASE_ANON_KEY;
 
     if (!supabaseKey) {
-      return res.status(500).json({ error: 'SUPABASE_SERVICE_KEY not configured in environment' });
+      return res.status(500).json({ error: 'SUPABASE_SERVICE_KEY not configured' });
     }
 
     // Build headers
@@ -47,17 +40,11 @@ export default async function handler(req, res) {
       'Authorization': `Bearer ${supabaseKey}`,
       'Content-Type': req.headers['content-type'] || 'application/json',
     };
-
-    // Forward relevant headers
     if (req.headers['accept']) headers['Accept'] = req.headers['accept'];
     if (req.headers['prefer']) headers['Prefer'] = req.headers['prefer'];
 
-    const fetchOptions = {
-      method: req.method,
-      headers,
-    };
+    const fetchOptions = { method: req.method, headers };
 
-    // Forward body for non-GET requests
     if (req.method !== 'GET' && req.method !== 'HEAD' && req.body) {
       fetchOptions.body = typeof req.body === 'string' ? req.body : JSON.stringify(req.body);
     }
@@ -65,12 +52,9 @@ export default async function handler(req, res) {
     const response = await fetch(targetUrl, fetchOptions);
     const responseText = await response.text();
 
-    // Set CORS headers
     res.setHeader('Access-Control-Allow-Origin', '*');
-
-    // Forward content type
-    const contentType = response.headers.get('content-type');
-    if (contentType) res.setHeader('Content-Type', contentType);
+    const ct = response.headers.get('content-type');
+    if (ct) res.setHeader('Content-Type', ct);
 
     res.status(response.status).send(responseText);
   } catch (error) {
