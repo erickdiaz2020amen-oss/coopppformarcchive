@@ -43,10 +43,7 @@ const uploadToB2Client = async (fileBase64: string, contentType: string, fileNam
     body: bytes,
   });
 
-  const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
-  const proxyUrl = `${baseUrl}/api/b2/${key}`;
-
-  const res = await fetch(proxyUrl, {
+  const res = await fetch(url, {
     method: 'PUT',
     headers: signedReq.headers,
     body: bytes,
