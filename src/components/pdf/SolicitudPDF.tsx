@@ -113,6 +113,16 @@ const styles = StyleSheet.create({
   }
 });
 
+const formatDate = (dateStr?: string) => {
+  if (!dateStr) return '-';
+  const match = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (match) {
+    const [_, year, month, day] = match;
+    return `${day}/${month}/${year}`;
+  }
+  return dateStr;
+};
+
 export const SolicitudPDF = ({ data }: { data: any }) => (
   <Document>
     {/* PAGE 1: Form Data */}
@@ -126,7 +136,7 @@ export const SolicitudPDF = ({ data }: { data: any }) => (
       <View style={styles.row}>
         <View style={styles.col}>
           <Text style={styles.label}>Fecha de Solicitud</Text>
-          <Text style={styles.value}>{data.fecha_solicitud || '-'}</Text>
+          <Text style={styles.value}>{formatDate(data.fecha_solicitud)}</Text>
         </View>
         <View style={styles.col}></View>
       </View>
@@ -139,7 +149,7 @@ export const SolicitudPDF = ({ data }: { data: any }) => (
         </View>
         <View style={styles.row}>
           <View style={styles.col}><Text style={styles.label}>Cédula</Text><Text style={styles.value}>{data.cedula}</Text></View>
-          <View style={styles.col}><Text style={styles.label}>Fecha Nacimiento</Text><Text style={styles.value}>{data.fecha_nacimiento || '-'}</Text></View>
+          <View style={styles.col}><Text style={styles.label}>Fecha Nacimiento</Text><Text style={styles.value}>{formatDate(data.fecha_nacimiento)}</Text></View>
           <View style={styles.col}><Text style={styles.label}>Estado Civil</Text><Text style={styles.value}>{data.estado_civil || '-'}</Text></View>
           <View style={styles.col}><Text style={styles.label}>Sexo</Text><Text style={styles.value}>{data.sexo === 'm' ? 'Masculino' : data.sexo === 'f' ? 'Femenino' : '-'}</Text></View>
         </View>
@@ -167,7 +177,7 @@ export const SolicitudPDF = ({ data }: { data: any }) => (
         <View style={styles.row}>
           <View style={styles.col}><Text style={styles.label}>Cargo/Ocupación</Text><Text style={styles.value}>{data.cargo || '-'}</Text></View>
           <View style={styles.col}><Text style={styles.label}>Salario</Text><Text style={styles.value}>{data.salario ? `$${data.salario}` : '-'}</Text></View>
-          <View style={styles.col}><Text style={styles.label}>Fecha Ingreso</Text><Text style={styles.value}>{data.fecha_ingreso || '-'}</Text></View>
+          <View style={styles.col}><Text style={styles.label}>Fecha Ingreso</Text><Text style={styles.value}>{formatDate(data.fecha_ingreso)}</Text></View>
           <View style={styles.col}><Text style={styles.label}>Aporte Mensual</Text><Text style={styles.value}>{data.aporte_mensual ? `$${data.aporte_mensual}` : '-'}</Text></View>
         </View>
       </View>
@@ -180,7 +190,7 @@ export const SolicitudPDF = ({ data }: { data: any }) => (
         </View>
         <View style={styles.row}>
           <View style={styles.col}><Text style={styles.label}>Salario</Text><Text style={styles.value}>{data.salario_conyuge ? `$${data.salario_conyuge}` : '-'}</Text></View>
-          <View style={styles.col}><Text style={styles.label}>Fecha Nacimiento</Text><Text style={styles.value}>{data.fecha_nacimiento_conyuge || '-'}</Text></View>
+          <View style={styles.col}><Text style={styles.label}>Fecha Nacimiento</Text><Text style={styles.value}>{formatDate(data.fecha_nacimiento_conyuge)}</Text></View>
           <View style={styles.col}></View>
         </View>
       </View>
