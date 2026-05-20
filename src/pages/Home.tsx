@@ -100,10 +100,15 @@ export default function Home() {
   const [cedulaFrontal, setCedulaFrontal] = useState<File | null>(null);
   const [cedulaTrasera, setCedulaTrasera] = useState<File | null>(null);
 
+  const getLocalDateString = () => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  };
+
   const { register, handleSubmit, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      fechaSolicitud: new Date().toISOString().split('T')[0],
+      fechaSolicitud: getLocalDateString(),
     }
   });
 
@@ -130,7 +135,7 @@ export default function Home() {
       }
 
       const { error } = await supabase.from('solicitudes').insert({
-        fecha_solicitud: data.fechaSolicitud,
+        fecha_solicitud: getLocalDateString(),
         nombres: data.nombres,
         apellidos: data.apellidos,
         cedula: data.cedula,
@@ -213,7 +218,12 @@ export default function Home() {
         <div className="mb-8 grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <Label required>Fecha de la Solicitud</Label>
-            <Input type="date" {...register('fechaSolicitud')} className={cn(errors.fechaSolicitud && "border-red-500")} />
+            <Input 
+              type="date" 
+              {...register('fechaSolicitud')} 
+              readOnly 
+              className={cn("bg-gray-100 text-gray-500 cursor-not-allowed pointer-events-none select-none", errors.fechaSolicitud && "border-red-500")} 
+            />
             {errors.fechaSolicitud && <span className="text-red-500 text-xs mt-1">{errors.fechaSolicitud.message}</span>}
           </div>
         </div>
