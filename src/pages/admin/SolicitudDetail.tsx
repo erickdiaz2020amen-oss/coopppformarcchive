@@ -6,6 +6,12 @@ import { ArrowLeft, Download, FileText, CheckCircle, XCircle, Loader2 } from 'lu
 import { Button } from '../../components/ui/Button';
 import { Section } from '../../components/ui/Section';
 import { SolicitudPDF } from '../../components/pdf/SolicitudPDF';
+import { PrestamoVehiculoPDF } from '../../components/pdf/PrestamoVehiculoPDF';
+import { PrestamoElectrodomesticoPDF } from '../../components/pdf/PrestamoElectrodomesticoPDF';
+import { PrestamoMipymesPDF } from '../../components/pdf/PrestamoMipymesPDF';
+import { PrestamoGerencialPDF } from '../../components/pdf/PrestamoGerencialPDF';
+import { PrestamoEscolarPDF } from '../../components/pdf/PrestamoEscolarPDF';
+import { PrestamoCorrientePDF } from '../../components/pdf/PrestamoCorrientePDF';
 import { pdf } from '@react-pdf/renderer';
 import { AwsClient } from 'aws4fetch';
 import { getSignedUrl } from '../../lib/b2';
@@ -59,7 +65,7 @@ export default function SolicitudDetail() {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [generatingPdf, setGeneratingPdf] = useState(false);
-  const [signedUrls, setSignedUrls] = useState<{ pdf?: string, frontal?: string, trasera?: string, firma?: string }>({});
+  const [signedUrls, setSignedUrls] = useState<{ pdf?: string, frontal?: string, trasera?: string, firma?: string, gar_firma?: string, gar_frontal?: string, gar_trasera?: string }>({});
 
   useEffect(() => {
     if (id) fetchDetail();
@@ -87,6 +93,13 @@ export default function SolicitudDetail() {
         if (row.cedula_frontal_url) urls.frontal = await getSignedUrl(row.cedula_frontal_url);
         if (row.cedula_trasera_url) urls.trasera = await getSignedUrl(row.cedula_trasera_url);
         if (row.firma_url) urls.firma = await getSignedUrl(row.firma_url);
+        // Garante URLs for PRESTAMO_CORRIENTE
+        try {
+          const dep = JSON.parse(row.dependientes || '{}');
+          if (dep.firma_garante_url) urls.gar_firma = await getSignedUrl(dep.firma_garante_url);
+          if (dep.cedula_garante_frontal_url) urls.gar_frontal = await getSignedUrl(dep.cedula_garante_frontal_url);
+          if (dep.cedula_garante_trasera_url) urls.gar_trasera = await getSignedUrl(dep.cedula_garante_trasera_url);
+        } catch(e) {}
         setSignedUrls(urls);
       } else {
         console.error('[SolicitudDetail] fetch error:', res.status, await res.text());
@@ -150,7 +163,21 @@ export default function SolicitudDetail() {
         cedula_trasera_url: traseraObjUrl || data.cedula_trasera_url
       };
       
-      const blob = await pdf(<SolicitudPDF data={pdfData} />).toBlob();
+      const pdfComponent = data.cargo === 'PRESTAMO_VEHICULOS' 
+        ? <PrestamoVehiculoPDF data={pdfData} /> 
+        : data.cargo === 'PRESTAMO_ELECTRODOMESTICOS'
+        ? <PrestamoElectrodomesticoPDF data={pdfData} />
+        : data.cargo === 'PRESTAMO_MIPYMES'
+        ? <PrestamoMipymesPDF data={pdfData} />
+        : data.cargo === 'PRESTAMO_GERENCIAL'
+        ? <PrestamoGerencialPDF data={pdfData} />
+        : data.cargo === 'PRESTAMO_ESCOLAR'
+        ? <PrestamoEscolarPDF data={pdfData} />
+        : data.cargo === 'PRESTAMO_CORRIENTE'
+        ? <PrestamoCorrientePDF data={pdfData} />
+        : <SolicitudPDF data={pdfData} />;
+        
+      const blob = await pdf(pdfComponent).toBlob();
       
       // Cleanup object URLs
       if (firmaObjUrl) URL.revokeObjectURL(firmaObjUrl);
@@ -250,40 +277,104 @@ export default function SolicitudDetail() {
           <Section title="Datos Personales" className="mb-0 shadow-sm border-gray-100">
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
               <DataField label="Nombres" value={data.nombres} />
-              <DataField label="Apellidos" value={data.apellidos} />
+              <DataField label="Apellidos" value={data.apellidos !== 'N/A' ? data.apellidos : ''} />
               <DataField label="Cédula" value={data.cedula} />
               <DataField label="Estado Civil" value={data.estado_civil} className="capitalize" />
               <DataField label="Sexo" value={data.sexo === 'm' ? 'Masculino' : data.sexo === 'f' ? 'Femenino' : ''} />
-              <DataField label="Nacimiento" value={data.fecha_nacimiento} />
-              <DataField label="Teléfonos" value={data.telefonos} />
-              <DataField label="Email" value={data.email} className="col-span-2" />
-              <DataField label="Dirección" value={data.direccion} className="col-span-3" />
-              <DataField label="Ciudad" value={data.ciudad} />
-              <DataField label="Provincia" value={data.provincia} />
+              
+              {data.cargo === 'PRESTAMO_VEHICULOS' || data.cargo === 'PRESTAMO_ELECTRODOMESTICOS' || data.cargo === 'PRESTAMO_MIPYMES' || data.cargo === 'PRESTAMO_GERENCIAL' || data.cargo === 'PRESTAMO_ESCOLAR' || data.cargo === 'PRESTAMO_CORRIENTE' ? (
+                <>
+                  <DataField label="Nacionalidad" value={JSON.parse(data.dependientes || '{}').nacionalidad} />
+                  <DataField label="Teléfono" value={data.telefonos} />
+                  <DataField label="Dirección" value={data.direccion} className="col-span-2" />
+                  <DataField label="Número de Cuenta" value={JSON.parse(data.dependientes || '{}').numero_cuenta} className="col-span-3" />
+                </>
+              ) : (
+                <>
+                  <DataField label="Nacimiento" value={data.fecha_nacimiento} />
+                  <DataField label="Teléfonos" value={data.telefonos} />
+                  <DataField label="Email" value={data.email} className="col-span-2" />
+                  <DataField label="Dirección" value={data.direccion} className="col-span-3" />
+                  <DataField label="Ciudad" value={data.ciudad} />
+                  <DataField label="Provincia" value={data.provincia} />
+                </>
+              )}
             </div>
           </Section>
 
-          <Section title="Datos Laborales" className="mb-0 shadow-sm border-gray-100">
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <DataField label="Empresa" value={data.empresa} />
-              <DataField label="Cód. Empleado" value={data.codigo_empleado} />
-              <DataField label="Cargo" value={data.cargo} />
-              <DataField label="Departamento" value={data.departamento} />
-              <DataField label="Salario" value={data.salario ? `$${data.salario}` : ''} />
-              <DataField label="Aporte Mensual" value={data.aporte_mensual ? `$${data.aporte_mensual}` : ''} />
-            </div>
-          </Section>
+          {data.cargo === 'PRESTAMO_MIPYMES' && (
+            <Section title="Datos del Negocio/Emprendimiento" className="mb-0 shadow-sm border-gray-100">
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <DataField label="Nombre del Negocio" value={JSON.parse(data.dependientes || '{}').nombre_negocio} className="col-span-2" />
+                <DataField label="Tipo de Negocio" value={JSON.parse(data.dependientes || '{}').tipo_negocio === 'otro' ? JSON.parse(data.dependientes || '{}').tipo_negocio_otro : JSON.parse(data.dependientes || '{}').tipo_negocio} className="capitalize" />
+                <DataField label="¿Formalizado?" value={JSON.parse(data.dependientes || '{}').formalizado === 'si' ? 'Sí' : 'No'} />
+                <DataField label="Dirección del Negocio" value={JSON.parse(data.dependientes || '{}').direccion_negocio} className="col-span-2" />
+                <DataField label="Tiempo de Operación" value={JSON.parse(data.dependientes || '{}').tiempo_operacion} className="col-span-2" />
+              </div>
+            </Section>
+          )}
 
-          <Section title="Datos Cónyuge" className="mb-0 shadow-sm border-gray-100">
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <DataField label="Cónyuge" value={data.conyuge} />
-              <DataField label="Ocupación" value={data.ocupacion_conyuge} />
-            </div>
-          </Section>
+          {data.cargo === 'PRESTAMO_VEHICULOS' || data.cargo === 'PRESTAMO_ELECTRODOMESTICOS' || data.cargo === 'PRESTAMO_MIPYMES' || data.cargo === 'PRESTAMO_GERENCIAL' || data.cargo === 'PRESTAMO_ESCOLAR' || data.cargo === 'PRESTAMO_CORRIENTE' ? (
+            <Section title="Datos del Préstamo" className="mb-0 shadow-sm border-gray-100">
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <DataField label="Monto en letras" value={JSON.parse(data.dependientes || '{}').monto_letras} className="col-span-2" />
+                <DataField label="Monto del préstamo" value={JSON.parse(data.dependientes || '{}').monto_prestamo ? `$${JSON.parse(data.dependientes || '{}').monto_prestamo}` : ''} />
+                <DataField label="Plazo" value={JSON.parse(data.dependientes || '{}').plazo_prestamo} />
+                <DataField label="Forma de pago" value={JSON.parse(data.dependientes || '{}').forma_pago} />
+                <DataField label="Cantidad acciones" value={JSON.parse(data.dependientes || '{}').cantidad_acciones} />
+                {data.cargo === 'PRESTAMO_MIPYMES' || data.cargo === 'PRESTAMO_CORRIENTE' ? (
+                  <>
+                    <DataField label="Fines" value={JSON.parse(data.dependientes || '{}').fines} className="col-span-2" />
+                    <DataField label="Fecha de Vencimiento" value={JSON.parse(data.dependientes || '{}').fecha_vencimiento} className="col-span-2" />
+                  </>
+                ) : data.cargo === 'PRESTAMO_GERENCIAL' ? (
+                  <DataField label="Fecha de Vencimiento" value={JSON.parse(data.dependientes || '{}').fecha_vencimiento} className="col-span-2" />
+                ) : data.cargo === 'PRESTAMO_ESCOLAR' ? (
+                  null
+                ) : (
+                  <>
+                    <DataField label="Cotización" value={JSON.parse(data.dependientes || '{}').numero_cotizacion} />
+                    <DataField label="Artículo Seleccionado" value={JSON.parse(data.dependientes || '{}').articulo_seleccionado} className="col-span-2" />
+                  </>
+                )}
+              </div>
+            </Section>
+          ) : (
+            <>
+              <Section title="Datos Laborales" className="mb-0 shadow-sm border-gray-100">
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <DataField label="Empresa" value={data.empresa} />
+                  <DataField label="Cód. Empleado" value={data.codigo_empleado} />
+                  <DataField label="Cargo" value={data.cargo} />
+                  <DataField label="Departamento" value={data.departamento} />
+                  <DataField label="Salario" value={data.salario ? `$${data.salario}` : ''} />
+                  <DataField label="Aporte Mensual" value={data.aporte_mensual ? `$${data.aporte_mensual}` : ''} />
+                </div>
+              </Section>
+
+              <Section title="Datos Cónyuge" className="mb-0 shadow-sm border-gray-100">
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <DataField label="Cónyuge" value={data.conyuge} />
+                  <DataField label="Ocupación" value={data.ocupacion_conyuge} />
+                </div>
+              </Section>
+            </>
+          )}
+
+          {data.cargo === 'PRESTAMO_MIPYMES' && (
+            <Section title="Referencias Comerciales" className="mb-0 shadow-sm border-gray-100">
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <DataField label="Nombre Empresa" value={JSON.parse(data.dependientes || '{}').ref_nombres_empresa} className="col-span-2" />
+                <DataField label="Tipo Empresa" value={JSON.parse(data.dependientes || '{}').ref_tipo_empresa} className="col-span-2" />
+                <DataField label="Teléfono" value={JSON.parse(data.dependientes || '{}').ref_telefono} />
+                <DataField label="Dirección" value={JSON.parse(data.dependientes || '{}').ref_direccion} className="col-span-2" />
+              </div>
+            </Section>
+          )}
         </div>
 
         <div className="space-y-6">
-          <Section title="Firma Digital" className="mb-0 shadow-sm border-gray-100">
+          <Section title="Firma Digital del Socio" className="mb-0 shadow-sm border-gray-100">
             <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 flex items-center justify-center min-h-32">
               {signedUrls.firma ? (
                 <img src={signedUrls.firma} alt="Firma" className="max-w-full h-auto max-h-24 object-contain mix-blend-multiply" />
@@ -292,8 +383,20 @@ export default function SolicitudDetail() {
               )}
             </div>
           </Section>
+
+          {data.cargo === 'PRESTAMO_CORRIENTE' && (
+            <Section title="Firma Digital del Garante" className="mb-0 shadow-sm border-gray-100">
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 flex items-center justify-center min-h-32">
+                {signedUrls.gar_firma ? (
+                  <img src={signedUrls.gar_firma} alt="Firma Garante" className="max-w-full h-auto max-h-24 object-contain mix-blend-multiply" />
+                ) : (
+                  <span className="text-gray-400 text-sm">Sin firma registrada</span>
+                )}
+              </div>
+            </Section>
+          )}
           
-          <Section title="Documentos de Identidad" className="mb-0 shadow-sm border-gray-100">
+          <Section title="Documentos de Identidad - Socio" className="mb-0 shadow-sm border-gray-100">
             <div className="space-y-4">
               <div>
                 <p className="text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wider">Frontal</p>
@@ -313,6 +416,29 @@ export default function SolicitudDetail() {
               </div>
             </div>
           </Section>
+
+          {data.cargo === 'PRESTAMO_CORRIENTE' && (
+            <Section title="Documentos de Identidad - Garante" className="mb-0 shadow-sm border-gray-100">
+              <div className="space-y-4">
+                <div>
+                  <p className="text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wider">Frontal</p>
+                  <div className="bg-gray-100 rounded-lg overflow-hidden border border-gray-200 aspect-[1.6]">
+                    {signedUrls.gar_frontal ? (
+                      <img src={signedUrls.gar_frontal} alt="Cédula Garante Frontal" className="w-full h-full object-cover hover:object-contain transition-all" />
+                    ) : <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm">No disponible</div>}
+                  </div>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wider">Trasera</p>
+                  <div className="bg-gray-100 rounded-lg overflow-hidden border border-gray-200 aspect-[1.6]">
+                    {signedUrls.gar_trasera ? (
+                      <img src={signedUrls.gar_trasera} alt="Cédula Garante Trasera" className="w-full h-full object-cover hover:object-contain transition-all" />
+                    ) : <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm">No disponible</div>}
+                  </div>
+                </div>
+              </div>
+            </Section>
+          )}
         </div>
       </div>
     </div>

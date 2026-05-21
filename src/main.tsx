@@ -7,8 +7,11 @@ import { Buffer } from 'buffer';
 (globalThis as any).Buffer = Buffer;
 
 import './index.css';
-import { App } from './App';
-import Home from './pages/Home';
+import { PublicLayout } from './layouts/PublicLayout';
+import Landing from './pages/Landing';
+import AbrirCuenta from './pages/AbrirCuenta';
+import Prestamos from './pages/Prestamos';
+import PrestamoDetail from './pages/prestamos/PrestamoDetail';
 import Login from './pages/Login';
 import { AdminLayout } from './layouts/AdminLayout';
 import Dashboard from './pages/admin/Dashboard';
@@ -17,20 +20,42 @@ import SolicitudDetail from './pages/admin/SolicitudDetail';
 // Create a root route
 const rootRoute = createRootRoute({});
 
-// User Routes
-const appRoute = createRoute({
+// ──────────────────────────────────────────────
+// PUBLIC ROUTES (PublicLayout: header + footer)
+// ──────────────────────────────────────────────
+const publicRoute = createRoute({
   getParentRoute: () => rootRoute,
-  id: 'app',
-  component: App,
+  id: 'public',
+  component: PublicLayout,
 });
 
-const indexRoute = createRoute({
-  getParentRoute: () => appRoute,
+const landingRoute = createRoute({
+  getParentRoute: () => publicRoute,
   path: '/',
-  component: Home,
+  component: Landing,
 });
 
-// Admin Routes
+const abrirCuentaRoute = createRoute({
+  getParentRoute: () => publicRoute,
+  path: '/abrir-cuenta',
+  component: AbrirCuenta,
+});
+
+const prestamosRoute = createRoute({
+  getParentRoute: () => publicRoute,
+  path: '/prestamos',
+  component: Prestamos,
+});
+
+const prestamoDetailRoute = createRoute({
+  getParentRoute: () => publicRoute,
+  path: '/prestamos/$tipo',
+  component: PrestamoDetail,
+});
+
+// ──────────────────────────────────────────────
+// AUTH / ADMIN ROUTES
+// ──────────────────────────────────────────────
 const loginRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/login',
@@ -61,11 +86,18 @@ const solicitudDetailRoute = createRoute({
   component: SolicitudDetail,
 });
 
-// Create the route tree
+// ──────────────────────────────────────────────
+// ROUTE TREE
+// ──────────────────────────────────────────────
 const routeTree = rootRoute.addChildren([
-  appRoute.addChildren([indexRoute]),
+  publicRoute.addChildren([
+    landingRoute,
+    abrirCuentaRoute,
+    prestamosRoute,
+    prestamoDetailRoute,
+  ]),
   loginRoute,
-  adminRoute.addChildren([dashboardRoute, solicitudesRoute, solicitudDetailRoute])
+  adminRoute.addChildren([dashboardRoute, solicitudesRoute, solicitudDetailRoute]),
 ]);
 
 // Create the router instance

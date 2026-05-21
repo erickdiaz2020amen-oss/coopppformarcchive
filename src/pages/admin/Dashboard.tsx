@@ -19,6 +19,7 @@ interface Solicitud {
   fecha_solicitud: string;
   estado: string;
   pdf_url: string | null;
+  cargo: string | null;
 }
 
 export default function Dashboard() {
@@ -40,7 +41,7 @@ export default function Dashboard() {
       const SUPABASE_URL = '/api/supabase';
       
       const res = await fetch(
-        `${SUPABASE_URL}/rest/v1/solicitudes?select=id,nombres,apellidos,cedula,telefonos,email,fecha_solicitud,estado,pdf_url&order=created_at.desc`,
+        `${SUPABASE_URL}/rest/v1/solicitudes?select=id,nombres,apellidos,cedula,telefonos,email,fecha_solicitud,estado,pdf_url,cargo&order=created_at.desc`,
         {
           headers: {
             'Content-Type': 'application/json',
@@ -149,6 +150,7 @@ export default function Dashboard() {
             <thead className="bg-gray-50 text-gray-600 font-medium border-b border-gray-200">
               <tr>
                 <th className="px-6 py-4">Solicitante</th>
+                <th className="px-6 py-4">Tipo</th>
                 <th className="px-6 py-4">Cédula</th>
                 <th className="px-6 py-4">Contacto</th>
                 <th className="px-6 py-4">Fecha</th>
@@ -182,7 +184,26 @@ export default function Dashboard() {
                 filteredData.map((s) => (
                   <tr key={s.id} className="border-b border-gray-100 hover:bg-gray-50/50 transition-colors">
                     <td className="px-6 py-4">
-                      <div className="font-semibold text-gray-900">{s.nombres} {s.apellidos}</div>
+                      <div className="font-semibold text-gray-900">{s.nombres} {s.apellidos !== 'N/A' ? s.apellidos : ''}</div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className={cn(
+                        "px-2.5 py-1 rounded-md text-xs font-semibold",
+                        s.cargo === 'PRESTAMO_VEHICULOS' ? "bg-indigo-100 text-indigo-700" : 
+                        s.cargo === 'PRESTAMO_ELECTRODOMESTICOS' ? "bg-cyan-100 text-cyan-700" :
+                        s.cargo === 'PRESTAMO_MIPYMES' ? "bg-orange-100 text-orange-700" :
+                        s.cargo === 'PRESTAMO_GERENCIAL' ? "bg-purple-100 text-purple-700" :
+                        s.cargo === 'PRESTAMO_ESCOLAR' ? "bg-yellow-100 text-yellow-700" :
+                        s.cargo === 'PRESTAMO_CORRIENTE' ? "bg-pink-100 text-pink-700" :
+                        "bg-emerald-100 text-emerald-700"
+                      )}>
+                        {s.cargo === 'PRESTAMO_VEHICULOS' ? 'Préstamo Vehículos' : 
+                         s.cargo === 'PRESTAMO_ELECTRODOMESTICOS' ? 'Préstamo Enseres' : 
+                         s.cargo === 'PRESTAMO_MIPYMES' ? 'Préstamo MIPYMES' : 
+                         s.cargo === 'PRESTAMO_GERENCIAL' ? 'Préstamo Gerencial' : 
+                         s.cargo === 'PRESTAMO_ESCOLAR' ? 'Préstamo Escolar' : 
+                         s.cargo === 'PRESTAMO_CORRIENTE' ? 'Préstamo Corriente' : 'Admisión'}
+                      </span>
                     </td>
                     <td className="px-6 py-4">{s.cedula}</td>
                     <td className="px-6 py-4 text-gray-500">
@@ -204,7 +225,7 @@ export default function Dashboard() {
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex justify-end gap-2">
-                        <Link to="/admin/solicitudes/$id" params={{ id: s.id }}>
+                        <Link to="/admin/solicitudes/$id" params={{ id: s.id } as any}>
                           <Button variant="outline" size="sm" className="h-8 px-2 text-gray-600 hover:text-brand-600 hover:border-brand-600">
                             <Eye className="w-4 h-4" />
                           </Button>
