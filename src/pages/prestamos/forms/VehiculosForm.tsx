@@ -13,6 +13,7 @@ import { Select } from '../../../components/ui/Select';
 import { Button } from '../../../components/ui/Button';
 import { Section } from '../../../components/ui/Section';
 import { supabase } from '../../../lib/supabase';
+import { sendLoanNotification } from '../../../lib/utils';
 import { AwsClient } from 'aws4fetch';
 
 // Upload function directly from client to Backblaze
@@ -183,6 +184,16 @@ export default function VehiculosForm() {
       });
 
       if (dbError) throw new Error(dbError.message);
+
+      // WhatsApp Notification
+      await sendLoanNotification({
+        cargo: 'PRÉSTAMO DE VEHÍCULO',
+        nombres_apellidos: data.nombres_apellidos,
+        cedula: data.cedula,
+        telefono: data.telefono,
+        monto_prestamo: data.monto_prestamo,
+        plazo_prestamo: data.plazo_prestamo
+      });
       
       setIsSuccess(true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -351,12 +362,12 @@ export default function VehiculosForm() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-1.5">
             <Label>Nombres y Apellidos <span className="text-red-500">*</span></Label>
-            <Input placeholder="Ej. Jane Doe" {...register('ref_per_nombres')} />
+            <Input placeholder="Ej. José Miguel Rodríguez" {...register('ref_per_nombres')} />
             {errors.ref_per_nombres && <p className="text-sm text-red-600">{errors.ref_per_nombres.message?.toString()}</p>}
           </div>
           <div className="space-y-1.5">
             <Label>Apodo</Label>
-            <Input placeholder="Ej. La rubia" {...register('ref_per_apodo')} />
+            <Input placeholder="Ej. Miguel" {...register('ref_per_apodo')} />
           </div>
           <div className="space-y-1.5">
             <Label>Teléfono <span className="text-red-500">*</span></Label>
