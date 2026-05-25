@@ -2,59 +2,63 @@ import { Document, Page, Text, View, StyleSheet, Image } from '@react-pdf/render
 
 const styles = StyleSheet.create({
   page: {
-    padding: 30,
+    padding: 20,
     fontFamily: 'Helvetica',
     backgroundColor: '#ffffff'
   },
   header: {
     flexDirection: 'column',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 5,
     borderBottom: '2pt solid #1f7d45',
-    paddingBottom: 4,
+    paddingBottom: 2,
   },
   title: {
-    fontSize: 16,
+    fontSize: 14,
     fontFamily: 'Helvetica-Bold',
     color: '#1a6438',
-    marginBottom: 2,
+    marginBottom: 1,
     textAlign: 'center'
   },
   subtitle: {
-    fontSize: 11,
+    fontSize: 9,
     color: '#333333',
-    marginBottom: 2,
+    marginBottom: 1,
     letterSpacing: 1,
     textAlign: 'center'
   },
   docTitle: {
-    fontSize: 12,
+    fontSize: 10,
     fontFamily: 'Helvetica-Bold',
     backgroundColor: '#edfbf2',
     color: '#1a6438',
-    padding: '4 8',
+    padding: '3 6',
     borderRadius: 4,
-    marginTop: 4,
+    marginTop: 2,
   },
   section: {
-    marginTop: 6,
+    marginTop: 4,
     marginBottom: 0,
   },
   sectionTitle: {
-    fontSize: 11,
+    fontSize: 9,
     fontFamily: 'Helvetica-Bold',
     color: '#ffffff',
     backgroundColor: '#1f7d45',
-    padding: '3 6',
-    marginBottom: 3,
+    padding: '2 4',
+    marginBottom: 2,
   },
   row: {
     flexDirection: 'row',
-    marginBottom: 2,
+    marginBottom: 1,
     flexWrap: 'wrap'
   },
   col: {
     flex: 1,
+    paddingRight: 10,
+  },
+  col2: {
+    flex: 2,
     paddingRight: 10,
   },
   colHalf: {
@@ -62,35 +66,35 @@ const styles = StyleSheet.create({
     paddingRight: 10,
   },
   label: {
-    fontSize: 9,
+    fontSize: 8,
     color: '#666666',
-    marginBottom: 2,
+    marginBottom: 1,
   },
   value: {
-    fontSize: 10,
+    fontSize: 8,
     color: '#000000',
     borderBottom: '1pt solid #eeeeee',
-    paddingBottom: 2,
-    minHeight: 14,
+    paddingBottom: 1,
+    minHeight: 12,
   },
   signatureContainer: {
-    marginTop: 15,
+    marginTop: 8,
     alignItems: 'center',
   },
   signatureImage: {
     width: 350,
-    height: 50,
+    height: 40,
     objectFit: 'contain',
   },
   signatureLine: {
     width: 350,
     borderTop: '1pt solid #000000',
-    marginTop: 3,
-    paddingTop: 3,
+    marginTop: 2,
+    paddingTop: 2,
     textAlign: 'center',
   },
   signatureText: {
-    fontSize: 10,
+    fontSize: 9,
     fontFamily: 'Helvetica-Bold',
   },
   page2ImageContainer: {
@@ -98,30 +102,30 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   page2ImageLabel: {
-    fontSize: 12,
+    fontSize: 11,
     fontFamily: 'Helvetica-Bold',
-    marginBottom: 8,
+    marginBottom: 6,
     color: '#1f7d45'
   },
   idImage: {
     width: 400,
-    height: 250,
+    height: 230,
     objectFit: 'contain',
     border: '1pt solid #dddddd',
     borderRadius: 8,
   },
   committeeGrid: {
     flexDirection: 'row',
-    marginTop: 50,
+    marginTop: 25,
     paddingHorizontal: 20,
   },
   committeeBox: {
     flex: 1,
     marginHorizontal: 10,
     borderTop: '1pt solid #000000',
-    paddingTop: 5,
+    paddingTop: 4,
     textAlign: 'center',
-    fontSize: 10,
+    fontSize: 9,
     fontFamily: 'Helvetica-Bold',
   }
 });
@@ -200,6 +204,18 @@ export function PrestamoEscolarPDF({ data }: { data: any }) {
           </View>
         </View>
 
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>III- REFERENCIAS PERSONALES DEL SOCIO(A)</Text>
+          <View style={styles.row}>
+            <View style={styles.col2}><Text style={styles.label}>Nombres y Apellidos</Text><Text style={styles.value}>{prestamoData.ref_per_nombres || '-'}</Text></View>
+            <View style={styles.col}><Text style={styles.label}>Apodo</Text><Text style={styles.value}>{prestamoData.ref_per_apodo || '-'}</Text></View>
+          </View>
+          <View style={styles.row}>
+            <View style={styles.col2}><Text style={styles.label}>Dirección</Text><Text style={styles.value}>{prestamoData.ref_per_direccion || '-'}</Text></View>
+            <View style={styles.col}><Text style={styles.label}>Teléfono</Text><Text style={styles.value}>{prestamoData.ref_per_tel || '-'}</Text></View>
+          </View>
+        </View>
+
         <View style={styles.signatureContainer} wrap={false}>
           {data.firma_url ? (
             <Image src={data.firma_url} style={styles.signatureImage} />
@@ -211,8 +227,8 @@ export function PrestamoEscolarPDF({ data }: { data: any }) {
           </View>
         </View>
 
-        <View style={[styles.section, { marginTop: 30 }]}>
-          <Text style={styles.sectionTitle}>III- COMITÉ DE CRÉDITO U ORGANISMO AUTORIZADO</Text>
+        <View style={[styles.section, { marginTop: 15 }]}>
+          <Text style={styles.sectionTitle}>IV- COMITÉ DE CRÉDITO U ORGANISMO AUTORIZADO</Text>
           <View style={styles.row}>
             <View style={styles.colHalf}><Text style={styles.label}>Fecha</Text><Text style={styles.value}></Text></View>
             <View style={styles.col}></View>

@@ -77,6 +77,12 @@ const gerencialSchema = z.object({
   cantidad_acciones: z.string().min(1, 'Requerido'),
   fecha_vencimiento: z.string().min(1, 'Requerido'),
   
+  // Referencias Personales
+  ref_per_nombres: z.string().min(1, 'Requerido'),
+  ref_per_apodo: z.string().optional(),
+  ref_per_direccion: z.string().min(1, 'Requerido'),
+  ref_per_tel: z.string().min(10, 'Requerido'),
+
   cedulaFrontal: z.any()
     .refine((files) => files?.length === 1, "Imagen requerida.")
     .refine((files) => files?.[0]?.size <= MAX_FILE_SIZE, "Tamaño máximo 5MB.")
@@ -161,7 +167,11 @@ export default function GerencialForm() {
           plazo_prestamo: data.plazo_prestamo,
           forma_pago: data.forma_pago,
           cantidad_acciones: data.cantidad_acciones,
-          fecha_vencimiento: data.fecha_vencimiento
+          fecha_vencimiento: data.fecha_vencimiento,
+          ref_per_nombres: data.ref_per_nombres,
+          ref_per_apodo: data.ref_per_apodo,
+          ref_per_direccion: data.ref_per_direccion,
+          ref_per_tel: data.ref_per_tel
         }),
         ciudad: 'N/A',
         provincia: 'N/A',
@@ -325,6 +335,31 @@ export default function GerencialForm() {
             <Label>Fecha de vencimiento <span className="text-red-500">*</span></Label>
             <Input placeholder="Ej. DD/MM/AAAA" {...register('fecha_vencimiento')} />
             {errors.fecha_vencimiento && <p className="text-sm text-red-600">{errors.fecha_vencimiento.message?.toString()}</p>}
+          </div>
+        </div>
+      </Section>
+
+      {/* Punto III - Referencias Personales */}
+      <Section title="III. Referencias Personales del Socio (No familiar)">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-1.5">
+            <Label>Nombres y Apellidos <span className="text-red-500">*</span></Label>
+            <Input placeholder="Ej. Jane Doe" {...register('ref_per_nombres')} />
+            {errors.ref_per_nombres && <p className="text-sm text-red-600">{errors.ref_per_nombres.message?.toString()}</p>}
+          </div>
+          <div className="space-y-1.5">
+            <Label>Apodo</Label>
+            <Input placeholder="Ej. La rubia" {...register('ref_per_apodo')} />
+          </div>
+          <div className="space-y-1.5">
+            <Label>Teléfono <span className="text-red-500">*</span></Label>
+            <Input placeholder="(000) 000-0000" type="tel" {...register('ref_per_tel')} />
+            {errors.ref_per_tel && <p className="text-sm text-red-600">{errors.ref_per_tel.message?.toString()}</p>}
+          </div>
+          <div className="space-y-1.5">
+            <Label>Dirección <span className="text-red-500">*</span></Label>
+            <Input placeholder="Calle, Sector, Ciudad" {...register('ref_per_direccion')} />
+            {errors.ref_per_direccion && <p className="text-sm text-red-600">{errors.ref_per_direccion.message?.toString()}</p>}
           </div>
         </div>
       </Section>

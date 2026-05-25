@@ -87,7 +87,13 @@ const mipymesSchema = z.object({
   fines: z.string().min(1, 'Requerido'),
   fecha_vencimiento: z.string().min(1, 'Requerido'),
 
-  // IV. Referencias Comerciales
+  // IV. Referencias Personales
+  ref_per_nombres: z.string().min(1, 'Requerido'),
+  ref_per_apodo: z.string().optional(),
+  ref_per_direccion: z.string().min(1, 'Requerido'),
+  ref_per_tel: z.string().min(10, 'Requerido'),
+
+  // V. Referencias Comerciales
   ref_nombres_empresa: z.string().min(2, 'Requerido'),
   ref_direccion: z.string().min(2, 'Requerido'),
   ref_telefono: z.string().min(10, 'Mínimo 10 dígitos'),
@@ -190,6 +196,11 @@ export default function MipymesForm() {
           cantidad_acciones: data.cantidad_acciones,
           fines: data.fines,
           fecha_vencimiento: data.fecha_vencimiento,
+
+          ref_per_nombres: data.ref_per_nombres,
+          ref_per_apodo: data.ref_per_apodo,
+          ref_per_direccion: data.ref_per_direccion,
+          ref_per_tel: data.ref_per_tel,
 
           ref_nombres_empresa: data.ref_nombres_empresa,
           ref_direccion: data.ref_direccion,
@@ -420,8 +431,33 @@ export default function MipymesForm() {
         </div>
       </Section>
 
-      {/* Punto IV - Referencias Comerciales */}
-      <Section title="IV. Referencias Comerciales">
+      {/* Punto IV - Referencias Personales */}
+      <Section title="IV. Referencias Personales del Socio (No familiar)">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-1.5">
+            <Label>Nombres y Apellidos <span className="text-red-500">*</span></Label>
+            <Input placeholder="Ej. Jane Doe" {...register('ref_per_nombres')} />
+            {errors.ref_per_nombres && <p className="text-sm text-red-600">{errors.ref_per_nombres.message?.toString()}</p>}
+          </div>
+          <div className="space-y-1.5">
+            <Label>Apodo</Label>
+            <Input placeholder="Ej. La rubia" {...register('ref_per_apodo')} />
+          </div>
+          <div className="space-y-1.5">
+            <Label>Teléfono <span className="text-red-500">*</span></Label>
+            <Input placeholder="(000) 000-0000" type="tel" {...register('ref_per_tel')} />
+            {errors.ref_per_tel && <p className="text-sm text-red-600">{errors.ref_per_tel.message?.toString()}</p>}
+          </div>
+          <div className="space-y-1.5">
+            <Label>Dirección <span className="text-red-500">*</span></Label>
+            <Input placeholder="Calle, Sector, Ciudad" {...register('ref_per_direccion')} />
+            {errors.ref_per_direccion && <p className="text-sm text-red-600">{errors.ref_per_direccion.message?.toString()}</p>}
+          </div>
+        </div>
+      </Section>
+
+      {/* Punto V - Referencias Comerciales */}
+      <Section title="V. Referencias Comerciales">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-1.5 md:col-span-2">
             <Label>Nombres de la empresa <span className="text-red-500">*</span></Label>
