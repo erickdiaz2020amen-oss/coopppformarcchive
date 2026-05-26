@@ -101,7 +101,10 @@ const routeTree = rootRoute.addChildren([
 ]);
 
 // Create the router instance
-const router = createRouter({ routeTree });
+const router = createRouter({ 
+  routeTree,
+  basepath: '/digital'
+});
 
 // Register the router instance for type safety
 declare module '@tanstack/react-router' {
