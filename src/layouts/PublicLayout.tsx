@@ -1,5 +1,6 @@
 import { Outlet, Link } from '@tanstack/react-router';
 import { ShieldCheck } from 'lucide-react';
+import logo from '../assets/logo.png';
 
 export function PublicLayout() {
   return (
@@ -8,7 +9,7 @@ export function PublicLayout() {
       <header className="bg-white border-b border-gray-100 py-2 shadow-xs relative z-40">
         <div className="container mx-auto px-4 max-w-5xl flex items-center justify-between">
           <Link to="/" className="flex items-center">
-            <img src="/logo.png" alt="Coopmaza Digital Logo" className="h-16 md:h-24 w-auto object-contain" />
+            <img src={logo} alt="Coopmaza Digital Logo" className="h-16 md:h-24 w-auto object-contain" />
           </Link>
 
           <div className="hidden md:flex items-center gap-2.5 bg-brand-50/50 border border-brand-100/80 rounded-xl px-3 py-1.5">
