@@ -12,8 +12,8 @@
       "destination": "/api/b2-proxy?__path=$1"
     },
     {
-      "source": "/((?!api/).*)",
-      "destination": "/index.html"
+      "source": "/digital/((?!api/|assets/|favicon\\.svg|icons\\.svg|logo\\.png).*)",
+      "destination": "/digital/index.html"
     }
   ]
 }
